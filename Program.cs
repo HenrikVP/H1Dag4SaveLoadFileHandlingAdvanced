@@ -9,8 +9,16 @@ namespace MySpace
 
         static void Main(string[] args)
         {
-            string? load = Load();
+            object? load = Load<Person>();
             string? s;
+
+            Person p = new()
+            {
+                Name = "Hugo",
+                Id = 10,
+                Height = 1.80f,
+                NumberArray = new int[]{ 7, 9, 13 }
+            };
 
             while (true)
             {
@@ -21,12 +29,12 @@ namespace MySpace
                 {
                     case ConsoleKey.NumPad1:
                     case ConsoleKey.D1:
-                        s = Add();
-                        Save(load + s);
+                        p.Name = Add();
+                        Save(p);
                         break;
                     case ConsoleKey.NumPad2:
                     case ConsoleKey.D2:
-                        load = Load();
+                        load = Load<Person>();
                         if (load != null) Show(load);
                         break;
                     default:
@@ -40,27 +48,28 @@ namespace MySpace
         /// Return text if directory and file exists
         /// </summary>
         /// <returns>string</returns>
-        static string? Load()
+        static T? Load<T>()
         {
-            if (!Directory.Exists(path)) return null;
-            else if (!File.Exists(path + fileName)) return null;
+            if (!Directory.Exists(path)) return default;
+            else if (!File.Exists(path + fileName)) return default;
 
             string json = File.ReadAllText(path + fileName);
-            string? str = JsonSerializer.Deserialize<string>(json);
-            return str;
+            T? obj = JsonSerializer.Deserialize<T>(json);
+            return obj;
         }
 
-        static void Save(string? str)
+        static void Save(object? obj)
         {
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
-            string json = JsonSerializer.Serialize(str);
+            string json = JsonSerializer.Serialize(obj);
             File.WriteAllText(path + fileName, json);
         }
 
-        static void Show(string str)
+        static void Show(object obj)
         {
-            Console.WriteLine(str);
+            Person p = (Person)obj;
+            Console.WriteLine($"Name:  {p.Name}\nHeight: {p.Height}\nID: {p.Id}");
         }
 
         static string? Add()
